@@ -43,7 +43,7 @@ templateFiles.forEach(function (file) {
       description: error.message,
       categories: ['Style'],
       severity: SEVERITY[error.severity - 1],
-      locations: [{
+      location: {
         path: filePath,
         positions: {
           begin: {
@@ -55,7 +55,7 @@ templateFiles.forEach(function (file) {
             column: error.column
           }
         }
-      }]
+      }
     });
   });
 });
