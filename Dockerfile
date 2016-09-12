@@ -1,4 +1,5 @@
 FROM mhart/alpine-node:5.4
+MAINTAINER "Tim Evans <tim.c.evans@me.com>"
 
 WORKDIR /usr/src/app
 COPY npm-shrinkwrap.json /usr/src/app/
