@@ -71,8 +71,6 @@ templateFiles.forEach(function (file) {
   });
 
   errors.forEach(function (error) {
-    var categories = getCategories(rule);
-
     // A template failed to compile; continue
     if (error.rule == null) {
       return;
@@ -82,7 +80,7 @@ templateFiles.forEach(function (file) {
       type: 'issue',
       check_name: error.rule,
       description: error.message.replace(/ beginning at L\d+:C\d+/g, ''),
-      categories: categories,
+      categories: getCategories(error.rule),
       severity: SEVERITY[error.severity - 1],
       location: {
         path: filePath,
