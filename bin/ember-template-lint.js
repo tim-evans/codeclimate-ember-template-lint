@@ -33,8 +33,32 @@ var templateFiles = walkSync('./', { globs: includePaths, ignore: excludePaths }
   return path.extname(file) === '.hbs';
 });
 
-var issues = [];
 var SEVERITY = ['info', 'normal', 'critical'];
+
+function getCategories(rule) {
+  switch (rule) {
+  case 'bare-strings':
+    return ['Compatibility'];
+  case 'html-comments':
+    return ['Performance'];
+  case 'triple-curlies':
+    return ['Security'];
+  case 'nested-interactive':
+    return ['Bug Risk', 'Compatibility'];
+  case 'image-alt-attributes':
+  case 'invalid-interactive':
+    return ['Compatibility'];
+  case 'link-rel-noopener':
+    return ['Security'];
+  case 'style-concatenation':
+    return ['Security', 'Style'];
+  case 'deprecated-each-syntax':
+  case 'deprecated-inline-view-helper':
+    return ['Compatibility'];
+  default:
+    return ['Style'];
+  }
+}
 
 templateFiles.forEach(function (file) {
   var filePath = path.join(file);
@@ -47,12 +71,18 @@ templateFiles.forEach(function (file) {
   });
 
   errors.forEach(function (error) {
-    console.log(error);
-    issues.push({
+    var categories = getCategories(rule);
+
+    // A template failed to compile; continue
+    if (error.rule == null) {
+      return;
+    }
+
+    var issue = {
       type: 'issue',
       check_name: error.rule,
       description: error.message.replace(/ beginning at L\d+:C\d+/g, ''),
-      categories: ['Style'],
+      categories: categories,
       severity: SEVERITY[error.severity - 1],
       location: {
         path: filePath,
@@ -67,10 +97,8 @@ templateFiles.forEach(function (file) {
           }
         }
       }
-    });
-  });
-});
+    };
 
-issues.forEach(function (issue) {
-  console.log(JSON.stringify(issue) + '\0');
+    process.stdout.write(JSON.stringify(issue) + '\0');
+  });
 });
