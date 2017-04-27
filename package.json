@@ -1,6 +1,6 @@
 {
   "name": "codeclimate-ember-template-lint",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "CodeClimate support for ember-template-lint",
   "author": "tim-evans",
   "license": "MIT",
