@@ -5,9 +5,10 @@ RUN apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg && \
     echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/
 
-COPY engine.json package.json yarn.lock ./
+COPY engine.json /
+COPY package.json yarn.lock /usr/src/app/
 
 RUN apt-get install -y git jq yarn && \
     yarn install && \
@@ -16,10 +17,9 @@ RUN apt-get install -y git jq yarn && \
     apt-get purge -y git jq yarn && \
     apt-get autoremove --yes
 
-RUN adduser -u 9000 --disabled-password app
+RUN adduser --uid 9000 --gecos "" --disabled-password app
 
-COPY . ./
-RUN chown -R app:app ./
+COPY . /usr/src/app
 
 USER app
 VOLUME /code
