@@ -2,9 +2,10 @@
   "name": "codeclimate-ember-template-lint",
   "version": "0.0.2",
   "description": "CodeClimate support for ember-template-lint",
-  "author": "Code Climate Community",
+  "author": "tim-evans",
+  "license": "MIT",
   "dependencies": {
-    "ember-template-lint": "^0.6.3",
+    "ember-template-lint": "^0.6.4",
     "walk-sync": "^0.3.1"
   }
 }

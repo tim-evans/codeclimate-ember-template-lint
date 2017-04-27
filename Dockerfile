@@ -1,20 +1,27 @@
-FROM mhart/alpine-node:5.4
+FROM node:6.10.0-slim
 MAINTAINER "Tim Evans <tim.c.evans@me.com>"
 
+RUN apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg && \
+    echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update
+
 WORKDIR /usr/src/app
-COPY npm-shrinkwrap.json /usr/src/app/
-COPY package.json /usr/src/app/
 
-RUN apk --update add git && \
-    npm install && \
-    apk del --purge git
+COPY engine.json package.json yarn.lock ./
 
-RUN adduser -u 9000 -D app
-COPY . /usr/src/app
-RUN chown -R app:app /usr/src/app
+RUN apt-get install -y git jq yarn && \
+    yarn install && \
+    version="v$(npm -j ls ember-template-lint | jq -r '.dependencies["ember-template-lint"].version')" && \
+    cat engine.json | jq ".version = \"$version\"" > /engine.json && \
+    apt-get purge -y git jq yarn && \
+    apt-get autoremove --yes
+
+RUN adduser -u 9000 --disabled-password app
+
+COPY . ./
+RUN chown -R app:app ./
 
 USER app
-
 VOLUME /code
 WORKDIR /code
 
