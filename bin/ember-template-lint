@@ -6,19 +6,37 @@ var Linter = require('ember-template-lint');
 var walkSync = require('walk-sync');
 var fs = require('fs');
 var path = require('path');
-var modulePrefix;
+var engineConfig = fs.readFileSync('/config.json');
+var modulePrefix = engineConfig.namespace;
+var config;
 
-var linter = new Linter();
-var dir = 'app';
 try {
-  fs.accessSync('addon', fs.F_OK);
-  dir = 'addon';
-  modulePrefix = require(process.cwd() + '/index').name;
-} catch (e) {
-  modulePrefix = require(process.cwd() + '/config/environment')('production').modulePrefix;
+  config = require(process.cwd() + (engineConfig.config_path || '/.template-lintrc'));
+} catch {
+  config = engineConfig.config;
 }
 
-var engineConfig = fs.readFileSync('/config.json');
+if (config == null) {
+  config = {
+    extends: 'recommended'
+  }
+}
+
+var linter = new Linter({
+  config: config
+});
+
+var dir = 'app';
+if (!modulePrefix) {
+  try {
+    fs.accessSync('addon', fs.F_OK);
+    dir = 'addon';
+    modulePrefix = require(process.cwd() + '/index').name;
+  } catch (e) {
+    modulePrefix = require(process.cwd() + '/config/environment')('production').modulePrefix;
+  }
+}
+
 var includePaths = ['app/**/*'];
 if (engineConfig.include_paths) {
   includePaths = engineConfig.include_paths;
