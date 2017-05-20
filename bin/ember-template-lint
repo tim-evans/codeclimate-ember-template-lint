@@ -6,14 +6,15 @@ var Linter = require('ember-template-lint');
 var walkSync = require('walk-sync');
 var fs = require('fs');
 var path = require('path');
-var engineConfig = fs.readFileSync('/config.json');
-var modulePrefix = engineConfig.namespace;
+var engineConfig = JSON.parse(fs.readFileSync('/config.json').toString());
+var userConfig = engineConfig.config || {};
+var modulePrefix = userConfig.namespace;
 var config;
 
 try {
-  config = require(process.cwd() + (engineConfig.config_path || '/.template-lintrc'));
-} catch {
-  config = engineConfig.config;
+  config = require(process.cwd() + (userConfig.config_path || '/.template-lintrc'));
+} catch (e) {
+  config = userConfig.config;
 }
 
 if (config == null) {
@@ -23,7 +24,12 @@ if (config == null) {
 }
 
 var linter = new Linter({
-  config: config
+  config: config,
+  console: {
+    log: function () {
+      console.warn.apply(console, arguments);
+    }
+  }
 });
 
 var dir = 'app';
@@ -37,15 +43,14 @@ if (!modulePrefix) {
   }
 }
 
-var includePaths = ['app/**/*'];
-if (engineConfig.include_paths) {
-  includePaths = engineConfig.include_paths;
-}
-
-var excludePaths = [];
-if (engineConfig.exclude_paths) {
-  excludePaths = engineConfig.exclude_paths;
-}
+var includePaths = engineConfig.include_paths || ['app/**/*.hbs', 'addon/**/*.hbs'];
+includePaths = includePaths.map(function (path) {
+  return path.replace(/\/$/, '/**/*');
+});
+var excludePaths = engineConfig.exclude_paths || [];
+excludePaths = excludePaths.map(function (path) {
+  return path.replace(/\/$/, '/**/*');
+});
 
 var templateFiles = walkSync('./', { globs: includePaths, ignore: excludePaths }).filter(function (file) {
   return path.extname(file) === '.hbs';
