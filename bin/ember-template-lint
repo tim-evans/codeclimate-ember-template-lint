@@ -9,8 +9,31 @@ var path = require('path');
 var engineConfig = JSON.parse(fs.readFileSync('/config.json').toString());
 var userConfig = engineConfig.config || {};
 var modulePrefix = userConfig.namespace;
+var categories = require('./categories');
 var config;
 
+var linter = new Linter();
+
+// Pull documentation on each rule so we can show a more detailed
+// "Read Up" on CodeClimate.
+var docs = {};
+Object.keys(linter.config.loadedRules).forEach(function (ruleName) {
+  let documentationPath = __dirname + '/../node_modules/ember-template-lint/docs/rule/' + ruleName + '.md';
+  let deprecationPath = __dirname + '/../node_modules/ember-template-lint/docs/rule/deprecations/' + ruleName + '.md';
+  let documentation = '';
+  try {
+    documentation = fs.readFileSync(documentationPath, { encoding: 'utf8' });
+  } catch (e) {
+    try {
+      documentation = fs.readFileSync(deprecationPath, { encoding: 'utf8' });
+    } catch (e) {
+      documentation = '';
+    }
+  }
+  docs[ruleName] = documentation;
+});
+
+var dir = 'app';
 try {
   config = require(process.cwd() + (userConfig.config_path || '/.template-lintrc'));
 } catch (e) {
@@ -58,31 +81,6 @@ var templateFiles = walkSync('./', { globs: includePaths, ignore: excludePaths }
 
 var SEVERITY = ['info', 'normal', 'critical'];
 
-function getCategories(rule) {
-  switch (rule) {
-  case 'bare-strings':
-    return ['Compatibility'];
-  case 'html-comments':
-    return ['Performance'];
-  case 'triple-curlies':
-    return ['Security'];
-  case 'nested-interactive':
-    return ['Bug Risk', 'Compatibility'];
-  case 'image-alt-attributes':
-  case 'invalid-interactive':
-    return ['Compatibility'];
-  case 'link-rel-noopener':
-    return ['Security'];
-  case 'style-concatenation':
-    return ['Security', 'Style'];
-  case 'deprecated-each-syntax':
-  case 'deprecated-inline-view-helper':
-    return ['Compatibility'];
-  default:
-    return ['Style'];
-  }
-}
-
 templateFiles.forEach(function (file) {
   var filePath = path.join(file);
   var contents = fs.readFileSync(filePath, { encoding: 'utf8' });
@@ -102,8 +100,11 @@ templateFiles.forEach(function (file) {
     var issue = {
       type: 'issue',
       check_name: error.rule,
+      content: {
+        body: docs[error.rule]
+      },
       description: error.message.replace(/ beginning at L\d+:C\d+/g, ''),
-      categories: getCategories(error.rule),
+      categories: categories[error.rule] || ['Bug Risk'],
       severity: SEVERITY[error.severity - 1],
       location: {
         path: filePath,

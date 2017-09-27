@@ -1,6 +1,6 @@
 {
   "name": "ember-template-lint",
-  "description": "Ember",
+  "description": "Static analysis for Ember templates",
   "maintainer": {
     "name": "Tim Evans",
     "email": "tim.c.evans@me.com"
