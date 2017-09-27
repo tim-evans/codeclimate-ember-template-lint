@@ -1,5 +1,7 @@
 # Code Climate ember-template-lint Engine
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/tim-evans/codeclimate-ember-template-lint.svg)](https://greenkeeper.io/)
+
 `codeclimate-ember-template-lint` is a Code Climate engine that wraps [ember-template-lint](https://github.com/rwjblue/ember-template-lint). You can run it on your command line using the Code Climate CLI, or on our hosted analysis platform.
 
 ### Installation & Usage
