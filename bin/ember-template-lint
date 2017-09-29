@@ -34,10 +34,28 @@ Object.keys(linter.config.loadedRules).forEach(function (ruleName) {
 });
 
 var dir = 'app';
-try {
-  config = require(process.cwd() + (userConfig.config_path || '/.template-lintrc'));
-} catch (e) {
-  config = userConfig.config;
+if (userConfig.rules) {
+  let rules = Object.keys(userConfig.rules).reduce(function (E, ruleName) {
+    let value = userConfig.rules[ruleName];
+    if (value === 'true') {
+      E[ruleName] = true;
+    } else if (value === 'false') {
+      E[ruleName] = false;
+    } else {
+      E[ruleName] = parseInt(value, 10);
+    }
+    return E;
+  }, {});
+
+  config = { rules: rules };
+}
+
+if (config == null) {
+  try {
+    config = require(process.cwd() + (userConfig.config_path || '/.template-lintrc'));
+  } catch (e) {
+    config = null;
+  }
 }
 
 if (config == null) {
