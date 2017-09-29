@@ -11,3 +11,34 @@
 ### Need help?
 
 For help with ember-template-lint, [check out their documentation](https://github.com/rwjblue/ember-template-lint).
+
+### Developing
+
+To generate the engine, you'll need to build it as a docker image:
+
+```bash
+docker build -t codeclimate/codeclimate-ember-templatelint
+```
+
+You can then run this in an Ember app to test your changes:
+
+```bash
+codeclimate analyze --dev
+```
+
+To do this successfully, you may have to change the `channel` so it pulls the correct docker image.
+
+You can start debugging your outbut by adding `debug: true` to your engine config. Your `.codeclimate.yml` should look like:
+
+```yaml
+ember-template-lint:
+  enabled: true
+  config:
+    debug: true
+```
+
+Then, you can run the analyzer in debug mode via the following command:
+
+```bash
+CODECLIMATE_DEBUG=1 codeclimate analyze --dev
+```
