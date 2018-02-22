@@ -17,7 +17,7 @@ For help with ember-template-lint, [check out their documentation](https://githu
 To generate the engine, you'll need to build it as a docker image:
 
 ```bash
-docker build -t codeclimate/codeclimate-ember-templatelint
+docker build . -t codeclimate/codeclimate-ember-template-lint
 ```
 
 You can then run this in an Ember app to test your changes:
